@@ -31,57 +31,71 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onSelectPerson }) => {
 
     try {
       const root = stratify(data);
-      const treeLayout = d3.tree<Person>().size([height - 100, width - 260]);
+      const treeLayout = d3.tree<Person>().size([width - 100, height - 150]);
       treeLayout(root);
 
-      // Links (Classic orthogonal-like lines)
+      // Links (Orthogonal steps for a cleaner "photo-like" look)
       g.append("g")
         .attr("fill", "none")
-        .attr("stroke", "#B5842F")
+        .attr("stroke", "#94A3B8")
         .attr("stroke-opacity", 0.4)
         .attr("stroke-width", 2)
         .selectAll("path")
         .data(root.links())
         .join("path")
-        .attr("d", d3.linkHorizontal<any, any>()
-          .x(d => d.y)
-          .y(d => d.x) as any
+        .attr("d", d3.linkVertical<any, any>()
+          .x(d => d.x)
+          .y(d => d.y) as any
         );
 
-      // Nodes as Boxes
+      // Nodes as Styled Rectangles
       const node = g.append("g")
         .selectAll("g")
         .data(root.descendants())
         .join("g")
-        .attr("transform", d => `translate(${d.y},${d.x})`)
+        .attr("transform", d => `translate(${d.x},${d.y})`)
         .on("click", (event, d) => onSelectPerson(d.data))
         .attr("class", "cursor-pointer");
 
       const boxWidth = 140;
-      const boxHeight = 50;
+      const boxHeight = 55;
 
+      // Rectangle border based on gender
       node.append("rect")
         .attr("x", -boxWidth / 2)
         .attr("y", -boxHeight / 2)
         .attr("width", boxWidth)
         .attr("height", boxHeight)
         .attr("fill", "white")
-        .attr("stroke", "#B5842F")
-        .attr("stroke-width", 1)
-        .attr("rx", 4)
-        .attr("shadow", "0 2px 4px rgba(0,0,0,0.05)");
+        .attr("stroke", d => {
+          if (d.data.gender === 'male') return "#3B82F6"; // Blue
+          if (d.data.gender === 'female') return "#EC4899"; // Pink
+          return "#94A3B8"; // Gray
+        })
+        .attr("stroke-width", 2)
+        .attr("rx", 6)
+        .attr("class", "drop-shadow-sm");
 
+      // Name inside box
       node.append("text")
         .attr("dy", "-5")
         .attr("text-anchor", "middle")
         .text(d => `${d.data.firstName} ${d.data.lastName}`)
         .attr("class", "text-[11px] font-sans font-bold fill-stone-900");
 
+      // Unique Code inside box
       node.append("text")
         .attr("dy", "12")
         .attr("text-anchor", "middle")
+        .text(d => d.data.uniqueCode)
+        .attr("class", "text-[9px] font-mono font-bold fill-stone-400 uppercase tracking-widest");
+
+      // Birth year inside box
+      node.append("text")
+        .attr("dy", "26")
+        .attr("text-anchor", "middle")
         .text(d => d.data.birthDate ? `* ${d.data.birthDate.split('-')[0]}` : '')
-        .attr("class", "text-[9px] font-mono fill-stone-400 capitalize");
+        .attr("class", "text-[8px] font-mono fill-amber-600/70 font-bold");
 
     } catch (e) {
       console.error("D3 Simple Tree failed:", e);

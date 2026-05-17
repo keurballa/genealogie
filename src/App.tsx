@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { TreeView } from './components/tree/TreeView';
 import { AILab } from './components/ai-lab/AILab';
@@ -12,6 +12,8 @@ import { FamilyManager } from './components/family/FamilyManager';
 import { Person } from './types';
 import { Network, Sparkles, Shield, User, Bell, Search, Menu, Users } from 'lucide-react';
 import { cn } from './lib/utils';
+
+const LOCAL_STORAGE_KEY = 'heritage_nexus_data';
 
 const INITIAL_DATA: Person[] = [
   { id: '1', uniqueCode: 'HN-001', firstName: 'Jean', lastName: 'Dupont', gender: 'male', parents: [], spouses: [] },
@@ -23,7 +25,17 @@ const INITIAL_DATA: Person[] = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'tree' | 'ai' | 'vault' | 'family'>('tree');
-  const [familyData, setFamilyData] = useState<Person[]>(INITIAL_DATA);
+  
+  // Initialize from localStorage or fallback to INITIAL_DATA
+  const [familyData, setFamilyData] = useState<Person[]>(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : INITIAL_DATA;
+  });
+
+  // Sync with localStorage on every change
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(familyData));
+  }, [familyData]);
 
   const tabs = [
     { id: 'tree', label: 'Arbre Généalogique', icon: '🌳' },
@@ -217,6 +229,10 @@ export default function App() {
                   onAddPerson={handleAddPerson} 
                   onUpdatePerson={handleUpdatePerson} 
                   onDeletePerson={handleDeletePerson} 
+                  onFocusPerson={(id) => {
+                    setActiveTab('tree');
+                    // We could add logic here to highlight the person in the tree
+                  }}
                 />
               )}
 

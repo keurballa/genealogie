@@ -9,13 +9,15 @@ interface FamilyManagerProps {
   onAddPerson: (person: Person) => void;
   onUpdatePerson: (person: Person) => void;
   onDeletePerson: (id: string) => void;
+  onFocusPerson: (id: string) => void;
 }
 
 export const FamilyManager: React.FC<FamilyManagerProps> = ({ 
   people, 
   onAddPerson, 
   onUpdatePerson, 
-  onDeletePerson 
+  onDeletePerson,
+  onFocusPerson
 }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
@@ -93,7 +95,9 @@ export const FamilyManager: React.FC<FamilyManagerProps> = ({
             {people.map(person => (
               <div 
                 key={person.id}
-                className="flex items-center justify-between p-3 rounded-lg border border-stone-100 hover:border-stone-200 hover:bg-stone-50 transition-all group"
+                onDoubleClick={() => onFocusPerson(person.id)}
+                className="flex items-center justify-between p-3 rounded-lg border border-stone-100 hover:border-stone-200 hover:bg-stone-50 transition-all group cursor-pointer select-none"
+                title="Double-cliquez pour voir dans l'arbre"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 font-bold uppercase">
@@ -109,6 +113,14 @@ export const FamilyManager: React.FC<FamilyManagerProps> = ({
                     <p className="text-[10px] text-stone-400 font-mono italic">
                       {person.birthDate ? `Né(e) le ${person.birthDate}` : 'Date inconnue'}
                     </p>
+                    <div className="flex gap-2 mt-1">
+                      <p className="text-[9px] text-stone-500 flex items-center gap-1">
+                        <span className="font-bold text-blue-600/50">P:</span> {people.find(p => p.id === person.fatherId) ? `${people.find(p => p.id === person.fatherId)?.firstName} ${people.find(p => p.id === person.fatherId)?.lastName}` : 'Inconnu'}
+                      </p>
+                      <p className="text-[9px] text-stone-500 flex items-center gap-1">
+                        <span className="font-bold text-pink-600/50">M:</span> {people.find(p => p.id === person.motherId) ? `${people.find(p => p.id === person.motherId)?.firstName} ${people.find(p => p.id === person.motherId)?.lastName}` : 'Inconnue'}
+                      </p>
+                    </div>
                   </div>
                 </div>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -201,28 +213,28 @@ export const FamilyManager: React.FC<FamilyManagerProps> = ({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-widest text-stone-500 font-mono">Père</label>
+                    <label className="text-[10px] uppercase tracking-widest text-stone-500 font-mono text-blue-400">Père (Prénom & Nom)</label>
                     <select 
-                      className="w-full bg-stone-800 border border-stone-700 rounded p-2 text-sm focus:border-amber-500 outline-none"
+                      className="w-full bg-stone-800 border border-stone-700 rounded p-2 text-sm focus:border-blue-500 outline-none"
                       value={formData.fatherId || ''}
                       onChange={e => setFormData({...formData, fatherId: e.target.value})}
                     >
-                      <option value="">Non renseigné</option>
+                      <option value="">-- Sélectionner le Père --</option>
                       {people.filter(p => p.id !== editingId && p.gender === 'male').map(p => (
-                        <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
+                        <option key={p.id} value={p.id}>{p.firstName} {p.lastName} ({p.uniqueCode})</option>
                       ))}
                     </select>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-widest text-stone-500 font-mono">Mère</label>
+                    <label className="text-[10px] uppercase tracking-widest text-stone-500 font-mono text-pink-400">Mère (Prénom & Nom)</label>
                     <select 
-                      className="w-full bg-stone-800 border border-stone-700 rounded p-2 text-sm focus:border-amber-500 outline-none"
+                      className="w-full bg-stone-800 border border-stone-700 rounded p-2 text-sm focus:border-pink-500 outline-none"
                       value={formData.motherId || ''}
                       onChange={e => setFormData({...formData, motherId: e.target.value})}
                     >
-                      <option value="">Non renseignée</option>
+                      <option value="">-- Sélectionner la Mère --</option>
                       {people.filter(p => p.id !== editingId && p.gender === 'female').map(p => (
-                        <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
+                        <option key={p.id} value={p.id}>{p.firstName} {p.lastName} ({p.uniqueCode})</option>
                       ))}
                     </select>
                   </div>
