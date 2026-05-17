@@ -1,0 +1,12 @@
+{
+  "name": "HeritageNexus",
+  "description": "Secure, privacy-first genealogy platform with AI-powered photo restoration and collaborative family vaults.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "Genealogy Engine",
+    "AI Photo Restoration",
+    "Privacy Vault"
+  ]
+}
