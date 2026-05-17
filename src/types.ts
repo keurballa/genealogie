@@ -1,13 +1,16 @@
 export interface Person {
   id: string;
+  uniqueCode: string; // HeritageNexus unique identifier
   firstName: string;
   lastName: string;
   birthDate?: string;
   deathDate?: string;
   gender: 'male' | 'female' | 'other';
   photoUrl?: string;
-  parents: string[]; // Child of these IDs
-  spouses: string[]; // Married to these IDs
+  parents: string[]; // Maintaining for tree logic
+  fatherId?: string;
+  motherId?: string;
+  spouses: string[]; 
   extraInfo?: string;
   bio?: string;
 }

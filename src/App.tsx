@@ -14,11 +14,11 @@ import { Network, Sparkles, Shield, User, Bell, Search, Menu, Users } from 'luci
 import { cn } from './lib/utils';
 
 const INITIAL_DATA: Person[] = [
-  { id: '1', firstName: 'Jean', lastName: 'Dupont', gender: 'male', parents: [], spouses: [] },
-  { id: '2', firstName: 'Marie', lastName: 'Lefebvre', gender: 'female', parents: ['1'], spouses: [] },
-  { id: '3', firstName: 'Pierre', lastName: 'Dupont', gender: 'male', parents: ['1'], spouses: [] },
-  { id: '4', firstName: 'Lucie', lastName: 'Martin', gender: 'female', parents: ['2'], spouses: [] },
-  { id: '5', firstName: 'Antoine', lastName: 'Dupont', gender: 'male', parents: ['3'], spouses: [] },
+  { id: '1', uniqueCode: 'HN-001', firstName: 'Jean', lastName: 'Dupont', gender: 'male', parents: [], spouses: [] },
+  { id: '2', uniqueCode: 'HN-002', firstName: 'Marie', lastName: 'Lefebvre', gender: 'female', parents: ['1'], fatherId: '1', spouses: [] },
+  { id: '3', uniqueCode: 'HN-003', firstName: 'Pierre', lastName: 'Dupont', gender: 'male', parents: ['1'], fatherId: '1', spouses: [] },
+  { id: '4', uniqueCode: 'HN-004', firstName: 'Lucie', lastName: 'Martin', gender: 'female', parents: ['2'], motherId: '2', spouses: [] },
+  { id: '5', uniqueCode: 'HN-005', firstName: 'Antoine', lastName: 'Dupont', gender: 'male', parents: ['3'], fatherId: '3', spouses: [] },
 ];
 
 export default function App() {

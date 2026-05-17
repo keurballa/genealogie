@@ -34,9 +34,12 @@ export const FamilyManager: React.FC<FamilyManagerProps> = ({
       lastName: '',
       gender: 'male',
       parents: [],
+      motherId: '',
+      fatherId: '',
       spouses: [],
       birthDate: '',
       extraInfo: '',
+      uniqueCode: `HN-${Math.floor(1000 + Math.random() * 9000)}`,
     });
     setIsAdding(true);
     setEditingId(null);
@@ -47,12 +50,16 @@ export const FamilyManager: React.FC<FamilyManagerProps> = ({
       const newPerson: Person = {
         ...formData as Person,
         id: Math.random().toString(36).substr(2, 9),
-        parents: formData.parents || [],
+        parents: [formData.fatherId, formData.motherId].filter(id => id).map(id => id as string),
         spouses: formData.spouses || []
       };
       onAddPerson(newPerson);
     } else if (editingId) {
-      onUpdatePerson(formData as Person);
+      const updatedPerson: Person = {
+        ...formData as Person,
+        parents: [formData.fatherId, formData.motherId].filter(id => id).map(id => id as string),
+      };
+      onUpdatePerson(updatedPerson);
     }
     setEditingId(null);
     setIsAdding(false);
@@ -93,7 +100,12 @@ export const FamilyManager: React.FC<FamilyManagerProps> = ({
                     {person.firstName[0]}{person.lastName[0]}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-stone-900">{person.firstName} {person.lastName}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-stone-900">{person.firstName} {person.lastName}</p>
+                      <span className="text-[9px] bg-stone-100 text-stone-500 px-1.5 py-0.5 rounded font-mono font-bold">
+                        {person.uniqueCode}
+                      </span>
+                    </div>
                     <p className="text-[10px] text-stone-400 font-mono italic">
                       {person.birthDate ? `Né(e) le ${person.birthDate}` : 'Date inconnue'}
                     </p>
@@ -128,9 +140,16 @@ export const FamilyManager: React.FC<FamilyManagerProps> = ({
               className="bg-stone-900 text-white rounded-xl p-8 shadow-xl border border-stone-800 space-y-6"
             >
               <div className="flex justify-between items-center">
-                <h4 className="font-serif text-xl font-light">
-                  {isAdding ? 'Nouveau Profil' : 'Éditer Profil'}
-                </h4>
+                <div className="flex flex-col">
+                  <h4 className="font-serif text-xl font-light">
+                    {isAdding ? 'Nouveau Profil' : 'Éditer Profil'}
+                  </h4>
+                  {formData.uniqueCode && (
+                    <span className="text-[10px] font-mono text-amber-500 font-bold uppercase tracking-widest mt-1">
+                      ID: {formData.uniqueCode}
+                    </span>
+                  )}
+                </div>
                 <button onClick={cancel} className="text-stone-500 hover:text-white transition-colors">
                   <X size={20} />
                 </button>
@@ -180,18 +199,33 @@ export const FamilyManager: React.FC<FamilyManagerProps> = ({
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase tracking-widest text-stone-500 font-mono">Parent (ID)</label>
-                  <select 
-                    className="w-full bg-stone-800 border border-stone-700 rounded p-2 text-sm focus:border-amber-500 outline-none"
-                    value={formData.parents?.[0] || ''}
-                    onChange={e => setFormData({...formData, parents: e.target.value ? [e.target.value] : []})}
-                  >
-                    <option value="">Aucun</option>
-                    {people.filter(p => p.id !== editingId).map(p => (
-                      <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
-                    ))}
-                  </select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase tracking-widest text-stone-500 font-mono">Père</label>
+                    <select 
+                      className="w-full bg-stone-800 border border-stone-700 rounded p-2 text-sm focus:border-amber-500 outline-none"
+                      value={formData.fatherId || ''}
+                      onChange={e => setFormData({...formData, fatherId: e.target.value})}
+                    >
+                      <option value="">Non renseigné</option>
+                      {people.filter(p => p.id !== editingId && p.gender === 'male').map(p => (
+                        <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase tracking-widest text-stone-500 font-mono">Mère</label>
+                    <select 
+                      className="w-full bg-stone-800 border border-stone-700 rounded p-2 text-sm focus:border-amber-500 outline-none"
+                      value={formData.motherId || ''}
+                      onChange={e => setFormData({...formData, motherId: e.target.value})}
+                    >
+                      <option value="">Non renseignée</option>
+                      {people.filter(p => p.id !== editingId && p.gender === 'female').map(p => (
+                        <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div className="space-y-1">
