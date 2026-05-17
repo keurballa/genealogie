@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import * as tf from '@tensorflow/tfjs';
 import { motion, AnimatePresence } from 'motion/react';
-import { Image as ImageIcon, Sparkles, Wand2, History, Download, Trash2 } from 'lucide-react';
+import { Image as ImageIcon, Sparkles, Wand2, History, Download, Trash2, Shield } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 export const AILab: React.FC = () => {

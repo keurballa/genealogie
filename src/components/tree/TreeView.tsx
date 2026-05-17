@@ -23,23 +23,23 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onSelectPerson }) => {
 
     const g = svg.append("g");
 
-    // Simple horizontal tree layout logic
-    // In a real app, this would be a complex graph layout
+    // Classic tree layout logic
+    // We use parents[0] as the parent for the visual tree hierarchy
     const stratify = d3.stratify<Person>()
       .id(d => d.id)
-      .parentId(d => d.parents[0]); // Simple case: only one parent for visual tree
+      .parentId(d => d.parents[0]); 
 
     try {
       const root = stratify(data);
-      const treeLayout = d3.tree<Person>().size([height - 100, width - 200]);
+      const treeLayout = d3.tree<Person>().size([height - 100, width - 260]);
       treeLayout(root);
 
-      // Links
+      // Links (Classic orthogonal-like lines)
       g.append("g")
         .attr("fill", "none")
-        .attr("stroke", "#5A5A40")
+        .attr("stroke", "#B5842F")
         .attr("stroke-opacity", 0.4)
-        .attr("stroke-width", 1.5)
+        .attr("stroke-width", 2)
         .selectAll("path")
         .data(root.links())
         .join("path")
@@ -48,36 +48,50 @@ export const TreeView: React.FC<TreeViewProps> = ({ data, onSelectPerson }) => {
           .y(d => d.x) as any
         );
 
-      // Nodes
+      // Nodes as Boxes
       const node = g.append("g")
         .selectAll("g")
         .data(root.descendants())
         .join("g")
         .attr("transform", d => `translate(${d.y},${d.x})`)
-        .on("click", (event, d) => onSelectPerson(d.data));
+        .on("click", (event, d) => onSelectPerson(d.data))
+        .attr("class", "cursor-pointer");
 
-      node.append("circle")
-        .attr("fill", d => d.children ? "#5A5A40" : "#fff")
-        .attr("stroke", "#5A5A40")
-        .attr("stroke-width", 2)
-        .attr("r", 6);
+      const boxWidth = 140;
+      const boxHeight = 50;
+
+      node.append("rect")
+        .attr("x", -boxWidth / 2)
+        .attr("y", -boxHeight / 2)
+        .attr("width", boxWidth)
+        .attr("height", boxHeight)
+        .attr("fill", "white")
+        .attr("stroke", "#B5842F")
+        .attr("stroke-width", 1)
+        .attr("rx", 4)
+        .attr("shadow", "0 2px 4px rgba(0,0,0,0.05)");
 
       node.append("text")
-        .attr("dy", "0.31em")
-        .attr("x", d => d.children ? -10 : 10)
-        .attr("text-anchor", d => d.children ? "end" : "start")
+        .attr("dy", "-5")
+        .attr("text-anchor", "middle")
         .text(d => `${d.data.firstName} ${d.data.lastName}`)
-        .attr("class", "text-[10px] font-sans fill-gray-900")
-        .clone(true).lower()
-        .attr("stroke", "white")
-        .attr("stroke-width", 3);
+        .attr("class", "text-[11px] font-sans font-bold fill-stone-900");
+
+      node.append("text")
+        .attr("dy", "12")
+        .attr("text-anchor", "middle")
+        .text(d => d.data.birthDate ? `* ${d.data.birthDate.split('-')[0]}` : '')
+        .attr("class", "text-[9px] font-mono fill-stone-400 capitalize");
 
     } catch (e) {
-      // Fallback for non-tree structures (graphs)
-      console.error("D3 Stratify failed, using force layout fallback (not implemented for simplicity)");
+      console.error("D3 Simple Tree failed:", e);
+      g.append("text")
+        .attr("x", width / 2)
+        .attr("y", height / 2)
+        .attr("text-anchor", "middle")
+        .text("Erreur de rendu du graphe (Vérifiez les liens parents)");
     }
 
-    // Zoom behavior
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.5, 3])
       .on("zoom", (event) => {

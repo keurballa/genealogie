@@ -8,8 +8,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { TreeView } from './components/tree/TreeView';
 import { AILab } from './components/ai-lab/AILab';
 import { CollaborativeVault } from './components/vault/CollaborativeVault';
+import { FamilyManager } from './components/family/FamilyManager';
 import { Person } from './types';
-import { Network, Sparkles, Shield, User, Bell, Search, Menu } from 'lucide-react';
+import { Network, Sparkles, Shield, User, Bell, Search, Menu, Users } from 'lucide-react';
 import { cn } from './lib/utils';
 
 const INITIAL_DATA: Person[] = [
@@ -21,14 +22,27 @@ const INITIAL_DATA: Person[] = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'tree' | 'ai' | 'vault'>('tree');
+  const [activeTab, setActiveTab] = useState<'tree' | 'ai' | 'vault' | 'family'>('tree');
   const [familyData, setFamilyData] = useState<Person[]>(INITIAL_DATA);
 
   const tabs = [
     { id: 'tree', label: 'Arbre Généalogique', icon: '🌳' },
+    { id: 'family', label: 'Gérer la Famille', icon: '👥' },
     { id: 'ai', label: 'Laboratoire IA', icon: '🖼️' },
     { id: 'vault', label: 'Coffre-fort', icon: '🔒' },
   ] as const;
+
+  const handleAddPerson = (person: Person) => {
+    setFamilyData([...familyData, person]);
+  };
+
+  const handleUpdatePerson = (updated: Person) => {
+    setFamilyData(familyData.map(p => p.id === updated.id ? updated : p));
+  };
+
+  const handleDeletePerson = (id: string) => {
+    setFamilyData(familyData.filter(p => p.id !== id));
+  };
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -185,7 +199,7 @@ export default function App() {
                       <div className="space-y-4">
                         <div className="flex justify-between items-center bg-stone-50 p-3 rounded-lg">
                           <span className="text-xs text-stone-600">Membres Totaux</span>
-                          <span className="text-lg font-display font-bold">142</span>
+                          <span className="text-lg font-display font-bold">{familyData.length}</span>
                         </div>
                         <div className="flex justify-between items-center bg-stone-50 p-3 rounded-lg">
                           <span className="text-xs text-stone-600">Générations</span>
@@ -195,6 +209,15 @@ export default function App() {
                     </div>
                   </div>
                 </div>
+              )}
+
+              {activeTab === 'family' && (
+                <FamilyManager 
+                  people={familyData} 
+                  onAddPerson={handleAddPerson} 
+                  onUpdatePerson={handleUpdatePerson} 
+                  onDeletePerson={handleDeletePerson} 
+                />
               )}
 
               {activeTab === 'ai' && <AILab />}

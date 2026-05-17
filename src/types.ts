@@ -8,6 +8,8 @@ export interface Person {
   photoUrl?: string;
   parents: string[]; // Child of these IDs
   spouses: string[]; // Married to these IDs
+  extraInfo?: string;
+  bio?: string;
 }
 
 export interface FamilyLink {
